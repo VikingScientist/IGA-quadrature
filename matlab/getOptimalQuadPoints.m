@@ -1,5 +1,7 @@
 function [w, x, rec, it] = getOptimalQuadPoints(knot, p, w0, x0, knot0, rec)
 % intended use: [w, x] = getOptimalQuadPoints(knot,p)
+	warn_state  = warning();
+	warning off;
   n  = numel(knot)-p-1; % dimension of our spline space
 
   if mod(n,2)==1 % need to have a space of even dimension
@@ -12,11 +14,9 @@ function [w, x, rec, it] = getOptimalQuadPoints(knot, p, w0, x0, knot0, rec)
   % compute all greville points and integrals (used for initial guess)
   greville       = zeros(n,1);
   exact_integral = zeros(n,1);
-  pp1Knot = [knot, knot(end)*ones(1,p+2-numel(find(knot==knot(end))))];
-  N              = BSpline(pp1Knot, p+1, knot);
   for i=1:n
     greville(i)       = sum(knot(i+1:i+p)) / p;
-    exact_integral(i) = (knot(i+p+1)-knot(i))/(p+1) * sum(N(i:end,i+p+1));
+    exact_integral(i) = (knot(i+p+1)-knot(i))/(p+1);
   end
 
   if exist('x0') % if initial guess is provided, use these
@@ -45,10 +45,8 @@ function [w, x, rec, it] = getOptimalQuadPoints(knot, p, w0, x0, knot0, rec)
       if( max(x)>knot(end))     break;   end;
 
       % test for converging 
-      if(norm(dx)<newton_tol)   return;  end;
+      if(norm(dx)<newton_tol)  warning(warn_state); return;  end;
     end 
-    it = -1;
-    return;
 
     % at this point, newton iteration has diverged. solve recursively on easier knot
     if exist('knot0')
