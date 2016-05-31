@@ -1,0 +1,8 @@
+# IGA-quadrature
+Functions to generate optimal quadrature rules to evaluate spline integrands, primarily for use in isogeometric finite element codes.
+
+### Abstract
+Numerical integration is a core subroutine in many engineering applications, including the finite element method (FEM). Isogeometric analysis is a FEM technology that uses smooth B-spline and NURBS basis functions. Traditionally, Gaussian quadrature was used for numerical integration, but this yields suboptimal performance. This is attributed to the fact that Gaussian quadrature rules do not take inter-element smoothness of the spline basis into account, resulting in over-integration. The equations for exact quadrature are well known, but prove notoriously hard to solve due to their nonlinear nature. These generalized Gauss ∧ rules were first introduced in Hughes et al. (2010) in the context of isogeometric analysis, where newton iteration was utilized to study and tabulate several cases. Later, homotopy continuation (Barton and Calo 2015) was used as an alternative strategy for finding these rules. In this paper we describe an algorithm to generalize on both of these techniques. It is optimal in the sense that it will integrate a space of dimension n, using no more than (n+1)/2 quadrature points. The algorithm works on arbitrary nonuniform knot vectors of any polynomial degree and continuity, and is demonstrated on polynomial orders up to 15. It extends to 2D and 3D integrals by tensor product.
+
+### Use in publications
+If you decide to use this for your own scientific publications, please cite the original work "K.A.Johannessen, Optimal quadrature for univariate and tensor product splines, Comput.Methods Appl. Mech. Engrg. (2016), http://dx.doi.org/10.1016/j.cma.2016.04.030"
