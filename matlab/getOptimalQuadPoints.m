@@ -35,7 +35,7 @@ function [w, x, rec, it] = getOptimalQuadPoints(knot, p, w0, x0, knot0, rec)
       [N dN] = BSpline(knot, p, x);
       F      = N*w - exact_integral;
       dF     = [N, dN*diag(sparse(w))];
-      
+
       dx = dF \ -F;
       w = w + dx(1:end/2);
       x = x + dx(end/2+1:end);

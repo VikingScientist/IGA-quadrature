@@ -10,8 +10,8 @@ def getOptimalQuadPoints(knot, p, **kwargs):
   if n % 2==1: # need to have a space of even dimension
     i = np.where(np.diff(knot) == np.max(np.diff(knot)))  
     i = i[0][len(i[0])//2]                               # insert new knot in middle of
-    knot = sorted(knot + [np.mean(knot[i:i+1])]) # the largest, centermost knot span
-    n = n+1 
+    knot = sorted(knot + [np.mean(knot[i:i+2])]) # the largest, centermost knot span
+    n += 1 
 
   # compute all greville points and integrals (used for initial guess)
   greville       = np.zeros(n)
@@ -35,7 +35,6 @@ def getOptimalQuadPoints(knot, p, **kwargs):
     for it in range(newton_max_it):  # newton iteration loop
       N, dN = BSpline(knot, p, x)
       F  = N @ w - exact_integral 
-      np.set_printoptions(3)
       dF = sparse.hstack((N, dN @ sparse.diags(w)))
       
       warnings.filterwarnings("error")
