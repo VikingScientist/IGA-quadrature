@@ -1,7 +1,7 @@
 function [w, x, rec, it] = getOptimalQuadPoints(knot, p, w0, x0, knot0, rec)
 % intended use: [w, x] = getOptimalQuadPoints(knot,p)
-	warn_state  = warning();
-	warning off;
+  warn_state  = warning();
+  warning off;
   n  = numel(knot)-p-1; % dimension of our spline space
 
   if mod(n,2)==1 % need to have a space of even dimension
