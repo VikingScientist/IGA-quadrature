@@ -35,11 +35,30 @@ def getOptimalQuadPoints(knot, p, **kwargs):
         for it in range(newton_max_it):  # newton iteration loop
             N, dN = BSpline(knot, p, x)
             F  = N @ w - exact_integral 
-            dF = sparse.hstack((N, dN @ sparse.diags(w)))
+
+            ### This enumeration of the degrees of freedom crashes with umfpack solvers
+            # dF = sparse.hstack((N, dN @ sparse.diags(w)))
+
+            ### We need interleaved dofs. This is a readable version of what we want
+            # dF = sparse.csr_matrix((n, n))
+            # dF[:, ::2]  = N
+            # dF[:, 1::2] = dN @ sparse.diags(w)
+
+            ### Stupid sparse matrices need unreadable code. The below is just a more efficient
+            ### implementaiton of the three lines above
+            dN = dN @ sparse.diags(w)
+            Ni = sorted(list(N.indptr) + list(N.indptr[1:]))
+            N.resize(n,n)
+            N.indptr = np.array(Ni)
+            dNi = sorted(list(dN.indptr) + list(dN.indptr[:-1]))
+            dN.resize(n,n)
+            dN.indptr = np.array(dNi)
+            dF = N + dN
+
 
             warnings.filterwarnings("error")
             try:
-                dx = sparse.linalg.spsolve(dF,-F)
+                dx = sparse.linalg.spsolve(dF,-F, use_umfpack=True)
             except Warning: # singular matrix
                 warnings.filterwarnings("ignore")
                 break
@@ -47,8 +66,12 @@ def getOptimalQuadPoints(knot, p, **kwargs):
                 warnings.filterwarnings("ignore")
                 break
             warnings.filterwarnings("ignore")
-            w = w + dx[0:n//2]
-            x = x + dx[n//2: ]
+            ### umfpack solvers have problems with sequential enumeration (matlab code uses this)
+            # w = w + dx[0:n//2]
+            # x = x + dx[n//2: ]
+            ### interleaved dofs work much better
+            w = w + dx[0::2]
+            x = x + dx[1::2]
 
             # test for diverging (coarse heuristic, see section 3.3)
             if( np.min(x)<knot[ 0]): break
